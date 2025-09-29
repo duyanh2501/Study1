@@ -7,7 +7,6 @@ import com.example.demo.entity.User;
 import com.example.demo.repository.CompanyRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +35,7 @@ public class Userservice {
 
     // 1. Validate email uniqueness
     public Userdto createUser(Userdto userdto) {
-            Optional<User> exexistingUser = userRepository.findByEmail(userdto.getEmail());
+        Optional<User> exexistingUser = userRepository.findByEmail(userdto.getEmail());
         if (exexistingUser.isPresent()) {
             throw new IllegalArgumentException("Email exist, please use other");
         }
@@ -48,9 +47,7 @@ public class Userservice {
         User user = convertToEntity(userdto);
         user.setPassword(bCryptPasswordEncoder.encode(userdto.getPassword()));
         User savedUser = userRepository.save(user);
-
-
-        return convertToDto(savedUser);
+            return convertToDto(savedUser);
 
         }
 
@@ -100,11 +97,6 @@ public class Userservice {
         dto.setBirthday(user.getBirthday());
         dto.setGender(user.getGender());
         dto.setValidateStaffMark(user.getValidateStaffMark());
-        if (dto.getCompanyId() != null) {
-            Company company = companyRepository.findById(dto.getCompanyId())
-                    .orElseThrow(() -> new RuntimeException("Company not found"));
-            user.setCompany(company);
-        }
         return dto;
     }
 
@@ -135,21 +127,6 @@ public class Userservice {
         Basicdto.setGender(user.getGender());
         Basicdto.setPhone(user.getPhone());
         return Basicdto;
-    }
-
-    public long countUserByCompanyAndGender(String companyName , String gender) {
-        if(!"U".equals(gender) && !"M".equals(gender) && !"F".equals(gender)) {
-            throw new IllegalArgumentException("Gender should be 'U' or 'M' or 'F'");
-        }
-        return userRepository.countUsersByCompanyAndGender(companyName, gender);
-    }
-
-    public long countUserByCompany(String companyName) {
-        return userRepository.countUsersByCompany(companyName);
-    }
-
-    public Long countUserByCompanyAndAge(String companyName , int age) {
-        return userRepository.countByCompanyNameAndAgeGreaterThan(companyName, age);
     }
 
 }

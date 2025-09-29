@@ -59,6 +59,7 @@ public class Companyservice {
         dto.setAddress(company.getAddress());
         dto.setPhone(company.getPhone());
         dto.setWebsite(company.getWebsite());
+        dto.setId(company.getId());
         return dto;
     }
 

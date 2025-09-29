@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -35,6 +36,6 @@ public class Company {
     private String phone;
 
     @OneToMany(mappedBy = "company")
-    private Set<User> users;
+    private List<User> users;
 
 }

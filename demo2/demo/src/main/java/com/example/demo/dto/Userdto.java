@@ -11,7 +11,8 @@ import java.util.Date;
 
 @Data
 public class Userdto {
-    private Integer id;
+    private Long id;
+
 
     @NotBlank(message = "Username is required")
     @Length(max = 20 , message = " User name must be at most 20 characters")

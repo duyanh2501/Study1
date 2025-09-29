@@ -29,7 +29,7 @@ public class Companyservice {
     }
 
     public Company createCompany(Companydto companydto) {
-        Optional<Company> existingCompany = companyRepository.findBycompanyName(    companydto.getCompanyName());
+        Optional<Company> existingCompany = companyRepository.findByCompanyName(    companydto.getCompanyName());
         if(existingCompany.isPresent()){
             throw new IllegalArgumentException("Company name already exists");
         }

@@ -23,7 +23,7 @@ public class UserController {
         return ResponseEntity.ok(userservice.getAllUsers());
     }
 
-    @GetMapping({"/id"})
+    @GetMapping("/{id}")
     public ResponseEntity<Userdto> getUserById(@PathVariable Long id) {
         Userdto userdto = userservice.getUserById(id);
         if(userdto == null) {
@@ -32,29 +32,20 @@ public class UserController {
         return ResponseEntity.ok(userdto);
     }
 
-    @PostMapping({"/add"})
+    @PostMapping
     public ResponseEntity<?> createUser(@Valid @RequestBody Userdto userdto) {
-        try{
-            Userdto createdUser = userservice.createUser(userdto);
-                return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e){
-            return ResponseEntity.badRequest().body(null);
 
-        }
+            Userdto createdUser = userservice.createUser(userdto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @PutMapping("/{email}")
     public ResponseEntity<?> updateUser(@PathVariable String email , @Valid @RequestBody Userdto userdto) {
-        try {
             Userdto updateUser = userservice.updateUser(email, userdto);
-            return new ResponseEntity<>(updateUser, HttpStatus.OK);
-        } catch (IllegalArgumentException e ) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-
+            return ResponseEntity.ok(updateUser);
     }
 
-    @DeleteMapping({"/id"})
+    @DeleteMapping("/{id}")
     public ResponseEntity<Userdto> deleteUser(@PathVariable Long id) {
         userservice.deleteUser(id);
         return ResponseEntity.noContent().build();
@@ -114,6 +105,16 @@ public class UserController {
                 }catch (IllegalArgumentException e) {
                     return ResponseEntity.badRequest().body(e.getMessage());
                 }
+    }
+
+    @PostMapping("/update-mark")
+    public ResponseEntity<?> updateUserMark(@RequestParam String email , @RequestParam Integer validate_staff_mark) {
+        try {
+            userservice.updateStaffMark(email, validate_staff_mark);
+            return ResponseEntity.ok("Cập nhật điểm đánh giá thành công");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 }

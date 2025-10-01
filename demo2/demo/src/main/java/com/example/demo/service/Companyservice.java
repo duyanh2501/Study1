@@ -49,7 +49,10 @@ public class Companyservice {
     }
 
     public void deleteCompany(Long id) {
-        companyRepository.deleteById(id);
+       if (!companyRepository.existsById(id)) {
+           throw new IllegalArgumentException("Company not found");
+       }
+       companyRepository.deleteById(id);
     }
 
     public Companydto convertToDto(Company company) {

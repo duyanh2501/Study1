@@ -9,6 +9,7 @@ import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -91,6 +92,9 @@ public class Userservice {
     }
 
     public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new IllegalArgumentException("User not found");
+        }
         userRepository.deleteById(id);
     }
 
@@ -204,6 +208,18 @@ public class Userservice {
         }
         return userRepository.sumStaffMarkByCompanyNameAndGender(companyName, normalizedGender);
 
+    }
+
+    @Transactional
+    public void updateStaffMark(String email , Integer mark) {
+        // 1. Validate validate_staff_mark (Nằm trong khoảng 1->10)
+        if (email == null || mark < 1 || mark > 10) {
+            throw new IllegalArgumentException("validate_staff_mark phải nằm trong khoảng từ 1 đến 10.");
+        }
+        // 2. Validate email phải tồn tại
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Not Found: User with email \" + email + \" does not exist."));
+        user.setValidateStaffMark(mark);
+        userRepository.save(user);
     }
 
 }

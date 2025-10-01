@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,6 +48,12 @@ public class Userservice {
 
         User user = convertToEntity(userdto);
         user.setPassword(bCryptPasswordEncoder.encode(userdto.getPassword()));
+
+        Company company = companyRepository.findById(userdto.getCompanyId())
+                .orElseThrow(() -> new IllegalArgumentException("Company not found "));
+        user.setCompany(company);
+
+
         User savedUser = userRepository.save(user);
             return convertToDto(savedUser);
 
@@ -97,6 +105,9 @@ public class Userservice {
         dto.setBirthday(user.getBirthday());
         dto.setGender(user.getGender());
         dto.setValidateStaffMark(user.getValidateStaffMark());
+        if (user.getCompany() != null) {
+            dto.setCompanyId(user.getCompany().getId());
+        }
         return dto;
     }
 
@@ -109,6 +120,12 @@ public class Userservice {
         entity.setAddress(dto.getAddress());
         entity.setBirthday(dto.getBirthday());
         entity.setGender(dto.getGender());
+        entity.setValidateStaffMark(dto.getValidateStaffMark());
+        if (dto.getCompanyId() != null) {
+            Company company = companyRepository.findById(dto.getCompanyId())
+                    .orElseThrow(() -> new IllegalArgumentException("Company not found"));
+            entity.setCompany(company);
+        }
         return entity;
     }
 
@@ -127,6 +144,66 @@ public class Userservice {
         Basicdto.setGender(user.getGender());
         Basicdto.setPhone(user.getPhone());
         return Basicdto;
+    }
+
+    public long countUsersByCompanyAndGender(String companyName, String genderString) {
+        if (companyName == null || companyName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tên công ty không được để trống.");
+        }
+
+        // 1. Kiểm tra Công ty có tồn tại không
+        if (companyRepository.findByCompanyName(companyName).isEmpty()) {
+            throw new IllegalArgumentException("Lỗi: Không tìm thấy công ty với tên: " + companyName);
+        }
+
+        // 2. Trường hợp Đếm Tổng (genderString là null, rỗng hoặc "ALL")
+        if (genderString == null || genderString.trim().isEmpty() || genderString.equalsIgnoreCase("ALL")) {
+            return userRepository.countTotalUsersByCompanyName(companyName);
+        }
+
+        // Chuẩn hóa và kiểm tra giá trị giới tính
+        String normalizedGender = genderString.toUpperCase();
+        if (!List.of("U", "F", "M").contains(normalizedGender)) {
+            throw new IllegalArgumentException("Giá trị giới tính không hợp lệ. Chỉ chấp nhận: M, F, U, hoặc ALL/NULL.");
+        }
+
+        // 3. Trường hợp Đếm theo Giới tính cụ thể
+        return userRepository.countUsersByCompanyNameAndGender(companyName, normalizedGender);
+    }
+
+    public long countUsersByCompanyAndAgeGreaterThan(String companyName, int ageLimit) {
+        if (companyName == null || companyName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Ten cong ty khong de trong");
+        }
+        if (ageLimit < 0) {
+            throw new IllegalArgumentException("Tuoi gioi han > 0 ");
+        }
+        if(companyRepository.findByCompanyName(companyName).isEmpty()){
+            throw new IllegalArgumentException("Error : Company not found");
+        }
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.YEAR, -ageLimit);
+        Date dateThreshold = cal.getTime();
+
+        return userRepository.countUsersByCompanyNameAndAgeGreaterThan(companyName, dateThreshold);
+    }
+
+    public Long sumStaffMarkByCompanyAndGender(String companyName, String genderString) {
+        if (companyName == null || companyName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Ten cong ty khong de trong");
+        }
+        if (companyRepository.findByCompanyName(companyName).isEmpty()) {
+            throw new IllegalArgumentException("Error : Company not found");
+        }
+        if (genderString == null || genderString.trim().isEmpty() || genderString.equalsIgnoreCase("ALL")) {
+            return userRepository.sumTotalStaffMarkByCompanyName(companyName);
+        }
+        String normalizedGender = genderString.toUpperCase();
+        if (!List.of("U", "F", "M").contains(normalizedGender)) {
+            throw new IllegalArgumentException("Giá trị giới tính không hợp lệ. Chỉ chấp nhận: M, F, U, hoặc ALL/NULL.");
+        }
+        return userRepository.sumStaffMarkByCompanyNameAndGender(companyName, normalizedGender);
+
     }
 
 }

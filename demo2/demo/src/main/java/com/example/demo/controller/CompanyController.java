@@ -3,6 +3,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.Companydto;
 import com.example.demo.entity.Company;
+import com.example.demo.repository.CompanyRepository;
 import com.example.demo.service.Companyservice;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,5 +58,4 @@ public class    CompanyController {
         companyservice.deleteCompany(id);
         return ResponseEntity.noContent().build();
     }
-
 }

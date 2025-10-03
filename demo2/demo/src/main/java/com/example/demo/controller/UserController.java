@@ -54,67 +54,70 @@ public class UserController {
     @GetMapping("/employees")
     public ResponseEntity<List<UserBasicDto>> getEmployeesByCompanyName(@RequestParam String companyName) {
         List<UserBasicDto> employees = userservice.getAllUserByCompanyName(companyName);
-      ///  if (employees.isEmpty()) {
-      ///      return ResponseEntity.noContent().build();
-     ///   }
+       if (employees.isEmpty()) {
+            return ResponseEntity.noContent().build();
+       }
         return ResponseEntity.ok(employees);
     }
 
     @GetMapping("/count-by-company")
-    public ResponseEntity<?> countUsers(
+    public Long countUsers(
             @RequestParam("companyName") String companyName,
             // Giới tính là tham số tùy chọn
             @RequestParam(value = "gender", required = false) String gender) {
+        // Logic nghiệp vụ và việc ném exception được giữ nguyên trong Service
+        // Nếu userservice ném ra IllegalArgumentException,
+        // GlobalExceptionHandler sẽ tự động bắt và trả về 400 Bad Request
 
-        try {
-            long count = userservice.countUsersByCompanyAndGender(companyName, gender);
-
-            return ResponseEntity.ok(count);
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        return userservice.countUsersByCompanyAndGender(companyName , gender);
     }
 
-    @GetMapping("/count-by-company-age")
-    public ResponseEntity<?> countUsersByAge(
-            @RequestParam ("companyName") String companyName ,
-            @RequestParam("ageLimit") int ageLimit){
-        try {
+        @GetMapping("/count-by-company-age")
+        public String countUsersByAge(
+                @RequestParam ("companyName") String companyName ,
+                @RequestParam("ageLimit") int ageLimit){
+            // 1. Gọi Service để lấy kết quả đếm
             long count = userservice.countUsersByCompanyAndAgeGreaterThan(companyName, ageLimit);
-            String message = String.format("Số lượng nhân viên trên %d tuổi của công ty '%s' là: %d",
-                    ageLimit, companyName, count);
-            return ResponseEntity.ok(message);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            // 2. Định dạng thông báo (hoặc có thể trả về một đối tượng DTO)
+            String message = String.format("Số lượng nhân viên trên %d tuổi của công ty '%s' là: %d ",
+                    ageLimit , companyName , count );
+            // 3. Trả về String. Spring Boot tự động wrap thành 200 OK.
+            // Nếu userservice ném ra IllegalArgumentException,
+            // GlobalExceptionHandler sẽ tự động bắt và trả về 400 Bad Request.
+            return message;
         }
-    }
 
     @GetMapping("/sum-staff-mark")
-    public ResponseEntity<?> sumStaffMark (
+    public String sumStaffMark (
             @RequestParam("companyName") String companyName ,
             @RequestParam(value = "gender" , required = false ) String gender) {
-                try {
-                    Long sumMark = userservice.sumStaffMarkByCompanyAndGender(companyName, gender);
-                    long safeSum = (sumMark != null) ? sumMark : 0;
-                    String filter = (gender != null && !gender.trim().isEmpty() && !gender.equalsIgnoreCase("ALL")) ?
-                            "giới tính " + gender.toUpperCase() : " tổng số " ;
-                    String message = String.format("Tổng điểm đánh giá của nhân viên có %s trong công ty '%s' là: %d",
-                            filter, companyName, safeSum);
-                    return ResponseEntity.ok(sumMark);
-                }catch (IllegalArgumentException e) {
-                    return ResponseEntity.badRequest().body(e.getMessage());
-                }
-    }
-
-    @PostMapping("/update-mark")
-    public ResponseEntity<?> updateUserMark(@RequestParam String email , @RequestParam Integer validate_staff_mark) {
-        try {
-            userservice.updateStaffMark(email, validate_staff_mark);
-            return ResponseEntity.ok("Cập nhật điểm đánh giá thành công");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        // 1. Gọi Service. Nếu Service ném ra IllegalArgumentException,
+        // GlobalExceptionHandler sẽ tự động bắt và trả về 400 Bad Request.
+        Long sumMark = userservice.sumStaffMarkByCompanyAndGender(companyName , gender);
+        // 2. Xử lý giá trị null và định dạng chuỗi
+        long safeSum = (sumMark != null) ? sumMark : 0;
+        String filter ;
+        if(gender != null && !gender.trim().isEmpty() && !gender.equalsIgnoreCase("ALL")) {
+            filter = "giới tính " + gender.toUpperCase();
+        } else {
+            filter = "tổng số ";
         }
+        // 3. Định dạng thông báo trả về (Spring Boot tự wrap thành 200 OK)
+        String message = String.format("Tổng điểm đánh giá nhân viên  %s trong công ty '%s' là: %d",
+                filter , companyName , safeSum );
+        return message ;
+
     }
 
+    @PutMapping("/update-mark")
+    public String updateUserMark(@RequestParam String email , @RequestParam Integer validate_staff_mark) {
+        // 1. Gọi Service để thực hiện nghiệp vụ cập nhật
+
+        userservice.updateStaffMark(email, validate_staff_mark);
+        // 2. Trả về thông báo thành công. Spring Boot tự động wrap thành 200 OK.
+        // Nếu userservice ném ra IllegalArgumentException (ví dụ: email không tồn tại),
+        // Global Exception Handler sẽ tự động bắt lỗi và trả về 400 Bad Request.
+
+        return "Cập nhập điểm thành công ";
+    }
 }

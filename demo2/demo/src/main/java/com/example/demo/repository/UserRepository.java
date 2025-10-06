@@ -1,5 +1,7 @@
 package com.example.demo.repository;
 
+import com.example.demo.dto.CompanyMaxMarkDto;
+import com.example.demo.dto.CompanyTotalMarkDto;
 import com.example.demo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,7 +23,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT COUNT(u) FROM User u JOIN u.company c WHERE c.companyName = :companyName AND u.gender = :gender")
     long countUsersByCompanyNameAndGender(@Param("companyName") String companyName, @Param("gender") String gender);
 
-    // đếm TỔNG (bỏ qua giới tính)
+    // Đếm tổng (bỏ qua giới tính)
     @Query("SELECT COUNT(u) FROM User u JOIN u.company c WHERE c.companyName = :companyName")
     long countTotalUsersByCompanyName(@Param("companyName") String companyName);
 
@@ -37,9 +39,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "FROM User u JOIN u.company c " +
             "WHERE c.companyName = :companyName " +
             "  AND u.gender = :gender")
-    Long sumStaffMarkByCompanyNameAndGender (
-            @Param("companyName") String companyName ,
-            @Param("gender" ) String gender);
+    Long sumStaffMarkByCompanyNameAndGender(
+            @Param("companyName") String companyName,
+            @Param("gender") String gender);
 
     @Query("SELECT SUM(u.validateStaffMark) " +
             "FROM User u JOIN u.company c " +
@@ -47,6 +49,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Long sumTotalStaffMarkByCompanyName(
             @Param("companyName") String companyName);
 
+    @Query("SELECT new com.example.demo.dto.CompanyMaxMarkDto(u.company.companyName , MAX(u.validateStaffMark))" +
+            "FROM User u " +
+            "GROUP BY u.company.companyName")
+    List<CompanyMaxMarkDto> findMaxMarkGroupByCompany();
+
+    @Query("SELECT new com.example.demo.dto.CompanyTotalMarkDto(u.company.companyName, SUM(u.validateStaffMark))" +
+            "FROM User u " +
+            "GROUP BY u.company.companyName")
+    List<CompanyTotalMarkDto> findTotalMarkGroupByCompany();
+
 }
-
-

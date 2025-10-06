@@ -1,16 +1,19 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.CompanyMaxMarkDto;
+import com.example.demo.dto.CompanyTotalMarkDto;
 import com.example.demo.dto.UserBasicDto;
 import com.example.demo.dto.Userdto;
 import com.example.demo.service.Userservice;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping({"/api/user"})
 public class UserController {
@@ -119,5 +122,15 @@ public class UserController {
         // Global Exception Handler sẽ tự động bắt lỗi và trả về 400 Bad Request.
 
         return "Cập nhập điểm thành công ";
+    }
+
+    @GetMapping("/max-mark-by-company")
+    public ResponseEntity<List<CompanyMaxMarkDto>> getMaxMarkGroupByCompany() {
+        return ResponseEntity.ok(userservice.getMaxMarkGroupByCompany());
+    }
+
+    @GetMapping("/total-mark-by-company")
+    public ResponseEntity<List<CompanyTotalMarkDto>> getTotalMarkGroupByCompany() {
+        return ResponseEntity.ok(userservice.getTotalMarkGroupByCompany());
     }
 }

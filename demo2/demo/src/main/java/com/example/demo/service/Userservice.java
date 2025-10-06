@@ -1,11 +1,14 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.CompanyMaxMarkDto;
+import com.example.demo.dto.CompanyTotalMarkDto;
 import com.example.demo.dto.UserBasicDto;
 import com.example.demo.dto.Userdto;
 import com.example.demo.entity.Company;
 import com.example.demo.entity.User;
 import com.example.demo.repository.CompanyRepository;
 import com.example.demo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+@RequiredArgsConstructor
 @Service
 public class Userservice {
 
@@ -220,6 +223,14 @@ public class Userservice {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Not Found: User with email \" + email + \" does not exist."));
         user.setValidateStaffMark(mark);
         userRepository.save(user);
+    }
+
+    public List<CompanyMaxMarkDto> getMaxMarkGroupByCompany() {
+        return userRepository.findMaxMarkGroupByCompany();
+    }
+
+    public List<CompanyTotalMarkDto> getTotalMarkGroupByCompany() {
+        return userRepository.findTotalMarkGroupByCompany();
     }
 
 }

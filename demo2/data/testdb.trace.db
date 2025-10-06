@@ -1,0 +1,15 @@
+2025-10-06 10:34:18.208356+07:00 jdbc[26]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "COMPAN" not found; SQL statement:
+SELECT * FROM COMPAN [42102-232]
+2025-10-06 14:05:08.709071+07:00 jdbc[22]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "COMPNAY" not found; SQL statement:
+select from compnay [42102-232]
+2025-10-06 14:05:16.923230+07:00 jdbc[22]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "COMPNAY" not found; SQL statement:
+select from compnay [42102-232]
+2025-10-06 14:05:31.052561+07:00 jdbc[22]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]ID ID ID ID ID ID ID ID ID ADDRESS ADDRESS ADDRESS ADDRESS ADDRESS"; expected "INSERT"; SQL statement:
+ID ID ID ID ID ID ID ID ID ADDRESS ADDRESS ADDRESS ADDRESS ADDRESS [42001-232]
+2025-10-06 14:05:52.851655+07:00 jdbc[22]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM USERS COMPANY [*]PASSWORD"; SQL statement:
+SELECT * FROM USERS COMPANY PASSWORD [42000-232]
